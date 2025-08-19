@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎼 Agente Musical de IA</title>
+    <title>MusicalAI - Agente de IA Musical Avançado</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,1078 +14,1203 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
-            line-height: 1.6;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
         .header {
             text-align: center;
-            color: white;
             margin-bottom: 40px;
-            padding: 40px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
         }
 
-        .header h1 {
-            font-size: 3rem;
+         .header h1 {
+            font-size: 3.5rem;
             margin-bottom: 10px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 400%;
             background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         .header p {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             opacity: 0.9;
+            margin-bottom: 20px;
         }
 
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+            background-size: 400% 100%;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+
+        .upload-area:hover::before {
+            animation: shimmer 1.5s ease-in-out;
+            opacity: 1;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .upload-area:hover {
+            border-color: #4ecdc4;
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.15), rgba(102, 126, 234, 0.15));
+            transform: scale(1.02);
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .chat-container {
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.9);
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+            background: white;
+        }
+
+        .send-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .send-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .send-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .exercise-btn {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exercise-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s ease;
+        }
+
+        .exercise-btn:hover::before {
+            left: 100%;
+        }
+
+        .exercise-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(78, 205, 196, 0.3);
+        }
+
+        .results-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9));
+            border-radius: 15px;
+            border: 1px solid rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        .visualization-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .visualization-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .visualization-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .chord-visualizer {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            background: radial-gradient(circle, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .circle-of-fifths {
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+
+        .waveform-container {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: progressShine 2s ease-in-out infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 15px;
+            padding: 5px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab:not(.active):hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
         }
 
         @media (max-width: 768px) {
             .main-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
         }
 
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-        }
-
-        .card h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .audio-upload {
-            border: 2px dashed #667eea;
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .audio-upload:hover {
-            border-color: #764ba2;
-            background: linear-gradient(45deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
-        }
-
-        .audio-upload.dragover {
-            border-color: #ff6b6b;
-            background: linear-gradient(45deg, rgba(255, 107, 107, 0.1), rgba(255, 107, 107, 0.1));
-        }
-
-        #audioFile {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            color: #667eea;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .upload-text {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .upload-hint {
-            font-size: 0.9rem;
-            color: #999;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        /* Estilos específicos para visualizações */
+        .chord-diagram {
+            position: relative;
             width: 100%;
-            margin-top: 15px;
+            height: 250px;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-small {
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            width: auto;
-            margin: 5px;
-        }
-
-        .chat-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .chat-messages {
-            height: 300px;
-            overflow-y: auto;
-            border: 1px solid #e0e0e0;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: rgba(248, 249, 250, 0.8);
-        }
-
-        .message {
-            margin-bottom: 15px;
-            padding: 15px 20px;
-            border-radius: 15px;
-            max-width: 80%;
-            animation: fadeInUp 0.3s ease;
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .user-message {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            margin-left: auto;
-            text-align: right;
-        }
-
-        .bot-message {
-            background: linear-gradient(45deg, #4ecdc4, #44a08d);
-            color: white;
-            margin-right: auto;
-        }
-
-        .chat-input {
-            display: flex;
-            gap: 10px;
-        }
-
-        #chatInput {
-            flex: 1;
-            padding: 15px 20px;
-            border: 1px solid #ddd;
-            border-radius: 50px;
-            font-size: 1rem;
-            outline: none;
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        #chatInput:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .results {
-            margin-top: 20px;
-            padding: 20px;
-            background: linear-gradient(45deg, rgba(78, 205, 196, 0.1), rgba(68, 160, 141, 0.1));
-            border-radius: 15px;
-            border-left: 4px solid #4ecdc4;
-        }
-
-        .exercise-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-
-        .spinner {
+        .note-circle {
+            position: absolute;
             width: 40px;
             height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .analysis-result {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .analysis-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .analysis-item:last-child {
-            border-bottom: none;
-        }
-
-        .analysis-label {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .analysis-value {
-            color: #667eea;
-            font-weight: 500;
-        }
-
-        .chord-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .chord-item {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            justify-content: center;
+            font-weight: bold;
             color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .exercise-result {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .exercise-question {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .show-answer {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 600;
-            cursor: pointer;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .show-answer:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        .note-circle:hover {
+            transform: scale(1.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .answer-content {
-            display: none;
-            background: linear-gradient(45deg, rgba(78, 205, 196, 0.1), rgba(68, 160, 141, 0.1));
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            border-left: 4px solid #4ecdc4;
+        .note-active {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            animation: pulse 2s ease-in-out infinite;
         }
 
-        .file-info {
-            display: none;
-            background: rgba(78, 205, 196, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            border-left: 4px solid #4ecdc4;
+        .note-inactive {
+            background: linear-gradient(135deg, #bdc3c7, #95a5a6);
         }
 
-        .progress-bar {
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .spectrum-analyzer {
             width: 100%;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
+            height: 150px;
+            background: #2c3e50;
+            border-radius: 10px;
+            position: relative;
             overflow: hidden;
-            margin: 10px 0;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 0.3s ease;
+        .frequency-bar {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to top, #e74c3c, #f39c12, #f1c40f);
+            transition: height 0.1s ease;
+            border-radius: 2px 2px 0 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎼 Agente Musical de IA</h1>
-            <p>Análise de áudio, ensino de teoria musical e exercícios interativos</p>
+            <h1>🎵 MusicAI</h1>
+            <p>Agente de IA Musical Avançado com Análise de Áudio e Ensino Interativo</p>
         </div>
 
-        <div class="main-grid">
-            <div class="card">
-                <h2>🎵 Análise de Áudio</h2>
-                <div class="audio-upload" id="audioUpload">
-                    <span class="upload-icon">🎧</span>
-                    <div class="upload-text">Clique ou arraste seu arquivo de áudio aqui</div>
-                    <div class="upload-hint">Suporta WAV, MP3, FLAC, M4A (máx. 10MB)</div>
-                    <input type="file" id="audioFile" accept="audio/*">
-                </div>
-                <div class="file-info" id="fileInfo">
-                    <strong>Arquivo selecionado:</strong> <span id="fileName"></span>
-                </div>
-                <button class="btn" id="analyzeBtn" disabled>Analisar Áudio</button>
-                <div class="loading" id="analysisLoading">
-                    <div class="spinner"></div>
-                    <div>Analisando áudio... Isso pode levar alguns segundos.</div>
-                    <div class="progress-bar">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('analysis')">🎼 Análise de Áudio</div>
+            <div class="tab" onclick="switchTab('theory')">📚 Teoria Musical</div>
+            <div class="tab" onclick="switchTab('visualizations')">📊 Visualizações</div>
+            <div class="tab" onclick="switchTab('exercises')">🎯 Exercícios</div>
+        </div>
+
+        <!-- Tab: Análise de Áudio -->
+        <div id="analysis" class="tab-content active">
+            <div class="main-grid">
+                <div class="card">
+                    <h2><span class="icon">🎵</span>Upload de Áudio</h2>
+                    <div class="upload-area" onclick="document.getElementById('audioFile').click()">
+                        <input type="file" id="audioFile" accept="audio/*" onchange="handleAudioUpload(event)">
+                        <div class="upload-text">📁 Clique para selecionar um arquivo de áudio</div>
+                        <div class="upload-subtext">Formatos suportados: MP3, WAV, M4A, OGG</div>
+                    </div>
+                    <div id="uploadProgress" class="progress-bar" style="display: none;">
                         <div class="progress-fill" id="progressFill"></div>
                     </div>
+                    <div id="audioResults" class="results-container" style="display: none;"></div>
                 </div>
-                <div id="analysisResult"></div>
+
+                <div class="card">
+                    <h2><span class="icon">🎤</span>Chat com IA Musical</h2>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message ai-message">
+                                Olá! Sou seu assistente de IA musical. Posso ajudar com teoria musical, análise de acordes, escalas e muito mais! Como posso ajudá-lo hoje?
+                            </div>
+                        </div>
+                        <div class="chat-input-container">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="Digite sua pergunta sobre música..." onkeypress="handleChatKeyPress(event)">
+                            <button class="send-btn" onclick="sendChatMessage()">Enviar</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="card">
-                <h2>🎯 Exercícios Musicais</h2>
-                <p style="margin-bottom: 20px;">Pratique teoria musical com exercícios gerados automaticamente:</p>
-                <div class="exercise-buttons">
-                    <button class="btn btn-small" onclick="generateExercise('interval')">Intervalos</button>
-                    <button class="btn btn-small" onclick="generateExercise('chord')">Acordes</button>
-                    <button class="btn btn-small" onclick="generateExercise('scale')">Escalas</button>
+            <div class="visualization-grid">
+                <div class="visualization-card">
+                    <h3>🎼 Visualizador de Acordes</h3>
+                    <div class="chord-visualizer" id="chordVisualizer">
+                        <div class="chord-diagram" id="chordDiagram"></div>
+                    </div>
                 </div>
-                <div id="exerciseResult"></div>
+
+                <div class="visualization-card">
+                    <h3>📊 Analisador de Espectro</h3>
+                    <div class="spectrum-analyzer" id="spectrumAnalyzer"></div>
+                </div>
+
+                <div class="visualization-card">
+                    <h3>🌊 Forma de Onda</h3>
+                    <div class="waveform-container" id="waveformContainer">
+                        <canvas id="waveformCanvas" width="100%" height="200"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="chat-container">
-            <h2>🤖 Chat de Teoria Musical</h2>
-            <div class="chat-messages" id="chatMessages">
-                <div class="message bot-message">
-                    Olá! 👋 Sou seu assistente musical de IA. Posso responder perguntas sobre teoria musical, escalas, acordes, intervalos e muito mais! 
-                    <br><br>
-                    <strong>Experimente perguntar:</strong><br>
-                    • "escala de D maior"<br>
-                    • "campo harmônico de A menor"<br>
-                    • "acorde G7"<br>
-                    • "intervalo entre F e A"<br>
-                    • "modo C mixolídio"
+        <!-- Tab: Teoria Musical -->
+        <div id="theory" class="tab-content">
+            <div class="feature-grid">
+                <div class="feature-card" onclick="explainConcept('scales')">
+                    <div class="feature-icon">🎼</div>
+                    <h3>Escalas Musicais</h3>
+                    <p>Aprenda sobre escalas maiores, menores, pentatônicas e modos gregos</p>
+                </div>
+                <div class="feature-card" onclick="explainConcept('chords')">
+                    <div class="feature-icon">🎹</div>
+                    <h3>Acordes e Harmonias</h3>
+                    <p>Entenda a formação de acordes e progressões harmônicas</p>
+                </div>
+                <div class="feature-card" onclick="explainConcept('intervals')">
+                    <div class="feature-icon">📏</div>
+                    <h3>Intervalos</h3>
+                    <p>Domine os intervalos musicais e suas aplicações</p>
+                </div>
+                <div class="feature-card" onclick="explainConcept('cadences')">
+                    <div class="feature-icon">🎭</div>
+                    <h3>Cadências</h3>
+                    <p>Explore cadências harmônicas e suas funções</p>
+                </div>
+                <div class="feature-card" onclick="explainConcept('modes')">
+                    <div class="feature-icon">🌟</div>
+                    <h3>Modos Musicais</h3>
+                    <p>Descubra os modos gregos e suas características</p>
+                </div>
+                <div class="feature-card" onclick="explainConcept('progressions')">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Progressões</h3>
+                    <p>Analise progressões harmônicas populares</p>
                 </div>
             </div>
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="Digite sua pergunta sobre teoria musical..." maxlength="200">
-                <button class="btn btn-small" id="sendBtn" onclick="sendMessage()">Enviar</button>
+            <div id="theoryResults" class="results-container" style="display: none;"></div>
+        </div>
+
+        <!-- Tab: Visualizações -->
+        <div id="visualizations" class="tab-content">
+            <div class="visualization-grid">
+                <div class="visualization-card">
+                    <h3>⭕ Círculo das Quintas</h3>
+                    <div class="circle-of-fifths" id="circleOfFifths"></div>
+                </div>
+                <div class="visualization-card">
+                    <h3>🎹 Piano Virtual</h3>
+                    <div id="virtualPiano"></div>
+                </div>
+                <div class="visualization-card">
+                    <h3>📈 Análise Temporal</h3>
+                    <canvas id="temporalAnalysis" width="400" height="300"></canvas>
+                </div>
+                <div class="visualization-card">
+                    <h3>🎵 Progressão Harmônica</h3>
+                    <div id="harmonicProgression"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Exercícios -->
+        <div id="exercises" class="tab-content">
+            <div class="card">
+                <h2><span class="icon">🎯</span>Exercícios Interativos</h2>
+                <p>Pratique seus conhecimentos de teoria musical com exercícios adaptativos:</p>
+                <div style="margin: 20px 0;">
+                    <button class="exercise-btn" onclick="generateExercise('interval')">🎵 Intervalos</button>
+                    <button class="exercise-btn" onclick="generateExercise('chord')">🎹 Acordes</button>
+                    <button class="exercise-btn" onclick="generateExercise('scale')">🎼 Escalas</button>
+                    <button class="exercise-btn" onclick="generateExercise('cadence')">🎭 Cadências</button>
+                    <button class="exercise-btn" onclick="generateExercise('progression')">🔄 Progressões</button>
+                    <button class="exercise-btn" onclick="generateExercise('mode')">🌟 Modos</button>
+                </div>
+                <div id="exerciseResults" class="results-container" style="display: none;"></div>
             </div>
         </div>
     </div>
 
+    <div id="notification" class="notification"></div>
+
     <script>
-        // Simulação das classes Python em JavaScript
-        class MusicTheoryTeacher {
-            constructor() {
-                this.noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-                this.intervals = {
-                    0: "Uníssono", 1: "2ª menor", 2: "2ª maior", 3: "3ª menor", 4: "3ª maior",
-                    5: "4ª justa", 6: "Trítono", 7: "5ª justa", 8: "6ª menor", 9: "6ª maior",
-                    10: "7ª menor", 11: "7ª maior", 12: "Oitava"
-                };
-                
-                this.scales = {
-                    'major': { pattern: 'T-T-S-T-T-T-S', intervals: [0, 2, 4, 5, 7, 9, 11] },
-                    'minor': { pattern: 'T-S-T-T-S-T-T', intervals: [0, 2, 3, 5, 7, 8, 10] }
-                };
-                
-                this.modes = {
-                    'jônio': [0, 2, 4, 5, 7, 9, 11],
-                    'dórico': [0, 2, 3, 5, 7, 9, 10],
-                    'frígio': [0, 1, 3, 5, 7, 8, 10],
-                    'lídio': [0, 2, 4, 6, 7, 9, 11],
-                    'mixolídio': [0, 2, 4, 5, 7, 9, 10],
-                    'eólio': [0, 2, 3, 5, 7, 8, 10],
-                    'lócrio': [0, 1, 3, 5, 6, 8, 10]
-                };
-            }
+        // Variáveis globais
+        let currentAudioData = null;
+        let audioContext = null;
+        let analyser = null;
 
-            explainScale(tonic, scaleType = 'major') {
-                const tonicIndex = this.noteNames.indexOf(tonic.toUpperCase());
-                if (tonicIndex === -1) return { erro: "Nota não reconhecida" };
-
-                const scale = this.scales[scaleType.toLowerCase()];
-                if (!scale) return { erro: "Tipo de escala não reconhecido" };
-
-                const notes = scale.intervals.map(interval => 
-                    this.noteNames[(tonicIndex + interval) % 12]
-                );
-
-                return {
-                    escala: `${tonic} ${scaleType}`,
-                    notas: notes,
-                    padrao: scale.pattern,
-                    descricao: scaleType === 'major' ? 
-                        'A escala maior tem um som alegre e brilhante.' :
-                        'A escala menor natural tem um som melancólico e introspectivo.'
-                };
-            }
-
-            explainChord(root, chordType = 'major') {
-                const rootIndex = this.noteNames.indexOf(root.toUpperCase());
-                if (rootIndex === -1) return { erro: "Nota não reconhecida" };
-
-                let intervals, description, cifra;
-                
-                switch (chordType.toLowerCase()) {
-                    case 'major':
-                    case 'maior':
-                        intervals = [0, 4, 7];
-                        description = 'Acorde maior: som alegre e estável. Formado por 1ª + 3ª maior + 5ª justa.';
-                        cifra = root;
-                        break;
-                    case 'minor':
-                    case 'menor':
-                    case 'm':
-                        intervals = [0, 3, 7];
-                        description = 'Acorde menor: som melancólico e introspectivo. Formado por 1ª + 3ª menor + 5ª justa.';
-                        cifra = root + 'm';
-                        break;
-                    case '7':
-                    case 'dominant7':
-                        intervals = [0, 4, 7, 10];
-                        description = 'Acorde de 7ª dominante: cria tensão que resolve no acorde seguinte.';
-                        cifra = root + '7';
-                        break;
-                    default:
-                        return { erro: "Tipo de acorde não reconhecido" };
-                }
-
-                const chordNotes = intervals.map(interval => 
-                    this.noteNames[(rootIndex + interval) % 12]
-                );
-
-                return {
-                    acorde: `${root}${chordType}`,
-                    notas: chordNotes,
-                    intervalos: intervals.map(i => this.intervals[i]),
-                    descricao: description,
-                    cifra: cifra
-                };
-            }
-
-            explainInterval(note1, note2) {
-                const idx1 = this.noteNames.indexOf(note1.toUpperCase());
-                const idx2 = this.noteNames.indexOf(note2.toUpperCase());
-                
-                if (idx1 === -1 || idx2 === -1) return { erro: "Nota não reconhecida" };
-
-                const interval = (idx2 - idx1 + 12) % 12;
-
-                return {
-                    nota1: note1.toUpperCase(),
-                    nota2: note2.toUpperCase(),
-                    intervalo: this.intervals[interval],
-                    semitons: interval,
-                    descricao: this.getIntervalDescription(interval)
-                };
-            }
-
-            getIntervalDescription(semitones) {
-                const descriptions = {
-                    0: "Mesmo som, sem diferença de altura.",
-                    1: "Intervalo muito dissonante, cria tensão.",
-                    2: "Intervalo consonante, som suave.",
-                    3: "Característico de acordes menores, som melancólico.",
-                    4: "Característico de acordes maiores, som alegre.",
-                    5: "Intervalo muito estável, base da harmonia.",
-                    6: "Intervalo muito dissonante, divide a oitava ao meio.",
-                    7: "Intervalo perfeito, muito consonante.",
-                    8: "Intervalo suave, usado em melodias.",
-                    9: "Intervalo brilhante, usado em acordes maiores.",
-                    10: "Usado em acordes de 7ª, cria tensão moderada.",
-                    11: "Intervalo muito consonante, usado em acordes sofisticados.",
-                    12: "Mesma nota uma oitava acima."
-                };
-                return descriptions[semitones] || "Descrição não disponível.";
-            }
-
-            explainHarmonicField(tonic, mode = 'major') {
-                const tonicIndex = this.noteNames.indexOf(tonic.toUpperCase());
-                if (tonicIndex === -1) return { erro: "Nota não reconhecida" };
-
-                let chordQualities, romanNumerals;
-                
-                if (mode === 'major') {
-                    chordQualities = ['', 'm', 'm', '', '', 'm', 'dim'];
-                    romanNumerals = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
-                } else {
-                    chordQualities = ['m', 'dim', '', 'm', 'm', '', ''];
-                    romanNumerals = ['i', 'ii°', 'III', 'iv', 'v', 'VI', 'VII'];
-                }
-
-                const scaleNotes = this.explainScale(tonic, mode).notas;
-                const chords = scaleNotes.map((note, i) => ({
-                    grau: romanNumerals[i],
-                    cifra: note + chordQualities[i],
-                    funcao: this.getChordFunction(i + 1, mode)
-                }));
-
-                return {
-                    tonalidade: `${tonic} ${mode}`,
-                    acordes: chords,
-                    progressoes_comuns: this.getCommonProgressions(mode)
-                };
-            }
-
-            getChordFunction(degree, mode) {
-                const functions = mode === 'major' ? {
-                    1: "Tônica (repouso)", 2: "Subdominante (preparação)", 3: "Tônica relativa",
-                    4: "Subdominante (afastamento)", 5: "Dominante (tensão)", 6: "Tônica relativa",
-                    7: "Dominante (tensão)"
-                } : {
-                    1: "Tônica (repouso)", 2: "Subdominante (preparação)", 3: "Dominante relativa",
-                    4: "Subdominante (afastamento)", 5: "Dominante (tensão)", 6: "Subdominante relativa",
-                    7: "Dominante (tensão)"
-                };
-                return functions[degree] || "Função não definida";
-            }
-
-            getCommonProgressions(mode) {
-                return mode === 'major' ? [
-                    "I - V - vi - IV (Progressão pop clássica)",
-                    "I - vi - IV - V (Progressão dos anos 50)",
-                    "vi - IV - I - V (Progressão alternativa)",
-                    "I - IV - V - I (Cadência autêntica)"
-                ] : [
-                    "i - VII - VI - VII (Progressão menor clássica)",
-                    "i - iv - V - i (Cadência menor)",
-                    "i - VI - III - VII (Progressão dramática)",
-                    "i - v - iv - i (Progressão melancólica)"
-                ];
-            }
-
-            explainMode(tonic, modeName) {
-                const tonicIndex = this.noteNames.indexOf(tonic.toUpperCase());
-                if (tonicIndex === -1) return { erro: "Nota não reconhecida" };
-                
-                const modeIntervals = this.modes[modeName.toLowerCase()];
-                if (!modeIntervals) return { erro: "Modo não reconhecido" };
-
-                const modeNotes = modeIntervals.map(interval => 
-                    this.noteNames[(tonicIndex + interval) % 12]
-                );
-
-                const descriptions = {
-                    'jônio': 'Modo maior tradicional, som alegre e brilhante.',
-                    'dórico': 'Som menor com 6ª maior, característico do jazz e música celta.',
-                    'frígio': 'Som menor com 2ª menor, muito usado no flamenco.',
-                    'lídio': 'Som maior com 4ª aumentada, cria sonoridade etérea.',
-                    'mixolídio': 'Som maior com 7ª menor, muito usado no blues e rock.',
-                    'eólio': 'Modo menor natural, som melancólico e introspectivo.',
-                    'lócrio': 'Modo mais instável, com 5ª diminuta.'
-                };
-
-                return {
-                    modo: `${tonic} ${modeName}`,
-                    notas: modeNotes,
-                    descricao: descriptions[modeName.toLowerCase()]
-                };
-            }
-        }
-
-        const teacher = new MusicTheoryTeacher();
-
-        // Upload de arquivo
-        const audioUpload = document.getElementById('audioUpload');
-        const audioFile = document.getElementById('audioFile');
-        const analyzeBtn = document.getElementById('analyzeBtn');
-        const fileInfo = document.getElementById('fileInfo');
-        const fileName = document.getElementById('fileName');
-
-        audioUpload.addEventListener('click', () => audioFile.click());
-        audioUpload.addEventListener('dragover', handleDragOver);
-        audioUpload.addEventListener('drop', handleDrop);
-        audioFile.addEventListener('change', handleFileSelect);
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            audioUpload.classList.add('dragover');
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            audioUpload.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                audioFile.files = files;
-                handleFileSelect();
-            }
-        }
-
-        function handleFileSelect() {
-            if (audioFile.files.length > 0) {
-                const file = audioFile.files[0];
-                fileName.textContent = file.name;
-                fileInfo.style.display = 'block';
-                analyzeBtn.disabled = false;
-            }
-        }
-
-        // Análise de áudio (simulada)
-        analyzeBtn.addEventListener('click', analyzeAudio);
-
-        async function analyzeAudio() {
-            const loading = document.getElementById('analysisLoading');
-            const resultDiv = document.getElementById('analysisResult');
-            const progressFill = document.getElementById('progressFill');
+        // Função para alternar entre abas
+        function switchTab(tabName) {
+            // Remove active de todas as abas
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            loading.style.display = 'block';
-            resultDiv.innerHTML = '';
+            // Adiciona active na aba selecionada
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Função para mostrar notificação
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
             
-            // Simula progresso
-            for (let i = 0; i <= 100; i += 10) {
-                progressFill.style.width = i + '%';
-                await new Promise(resolve => setTimeout(resolve, 100));
-            }
-            
-            // Simula análise
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Resultados simulados baseados no nome do arquivo
-            const file = audioFile.files[0];
-            const mockResults = generateMockAnalysis(file.name);
-            
-            loading.style.display = 'none';
-            displayAnalysisResults(mockResults);
-        }
-
-        function generateMockAnalysis(filename) {
-            const keys = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-            const modes = ['maior', 'menor'];
-            const randomKey = keys[Math.floor(Math.random() * keys.length)];
-            const randomMode = modes[Math.floor(Math.random() * modes.length)];
-            const randomTempo = Math.floor(Math.random() * 40) + 80; // 80-120 BPM
-            
-            // Gera acordes do campo harmônico
-            const harmonicField = teacher.explainHarmonicField(randomKey, randomMode === 'maior' ? 'major' : 'minor');
-            const chords = harmonicField.acordes.slice(0, 4).map(chord => chord.cifra);
-            
-            return {
-                tonalidade: `${randomKey} ${randomMode}`,
-                tempo: randomTempo,
-                acordes_detectados: chords,
-                duracao: Math.floor(Math.random() * 180) + 120, // 2-5 minutos
-                progressao_sugerida: harmonicField.acordes.map(chord => chord.cifra)
-            };
-        }
-
-        function displayAnalysisResults(results) {
-            const resultDiv = document.getElementById('analysisResult');
-            
-            const html = `
-                <div class="analysis-result">
-                    <h3 style="margin-bottom: 15px; color: #333;">📊 Resultados da Análise</h3>
-                    <div class="analysis-item">
-                        <span class="analysis-label">🎵 Tonalidade:</span>
-                        <span class="analysis-value">${results.tonalidade}</span>
-                    </div>
-                    <div class="analysis-item">
-                        <span class="analysis-label">⏱️ Tempo (BPM):</span>
-                        <span class="analysis-value">${results.tempo}</span>
-                    </div>
-                    <div class="analysis-item">
-                        <span class="analysis-label">⏰ Duração:</span>
-                        <span class="analysis-value">${Math.floor(results.duracao / 60)}:${String(Math.floor(results.duracao % 60)).padStart(2, '0')}</span>
-                    </div>
-                    <div class="analysis-item">
-                        <span class="analysis-label">🎸 Acordes Detectados:</span>
-                    </div>
-                    <div class="chord-list">
-                        ${results.acordes_detectados.map(chord => `<span class="chord-item">${chord}</span>`).join('')}
-                    </div>
-                    <div style="margin-top: 15px;">
-                        <span class="analysis-label">🎼 Campo Harmônico Sugerido:</span>
-                        <div class="chord-list" style="margin-top: 8px;">
-                            ${results.progressao_sugerida.map(chord => `<span class="chord-item">${chord}</span>`).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            resultDiv.innerHTML = html;
-        }
-
-        // Sistema de exercícios
-        function generateExercise(type) {
-            const resultDiv = document.getElementById('exerciseResult');
-            let exercise;
-
-            switch (type) {
-                case 'interval':
-                    exercise = generateIntervalExercise();
-                    break;
-                case 'chord':
-                    exercise = generateChordExercise();
-                    break;
-                case 'scale':
-                    exercise = generateScaleExercise();
-                    break;
-                default:
-                    return;
-            }
-
-            displayExercise(exercise, resultDiv);
-        }
-
-        function generateIntervalExercise() {
-            const notes = teacher.noteNames;
-            const note1 = notes[Math.floor(Math.random() * notes.length)];
-            const note2 = notes[Math.floor(Math.random() * notes.length)];
-            const answer = teacher.explainInterval(note1, note2);
-
-            return {
-                tipo: "Identificação de Intervalo",
-                pergunta: `Qual é o intervalo entre ${note1} e ${note2}?`,
-                resposta: answer
-            };
-        }
-
-        function generateChordExercise() {
-            const notes = teacher.noteNames;
-            const chordTypes = ['major', 'minor', '7'];
-            const root = notes[Math.floor(Math.random() * notes.length)];
-            const chordType = chordTypes[Math.floor(Math.random() * chordTypes.length)];
-            const answer = teacher.explainChord(root, chordType);
-
-            return {
-                tipo: "Formação de Acorde",
-                pergunta: `Quais são as notas do acorde ${root} ${chordType === 'major' ? 'maior' : chordType === 'minor' ? 'menor' : chordType}?`,
-                resposta: answer
-            };
-        }
-
-        function generateScaleExercise() {
-            const notes = teacher.noteNames;
-            const scaleTypes = ['major', 'minor'];
-            const tonic = notes[Math.floor(Math.random() * notes.length)];
-            const scaleType = scaleTypes[Math.floor(Math.random() * scaleTypes.length)];
-            const answer = teacher.explainScale(tonic, scaleType);
-
-            return {
-                tipo: "Escala Musical",
-                pergunta: `Quais são as notas da escala de ${tonic} ${scaleType === 'major' ? 'maior' : 'menor'}?`,
-                resposta: answer
-            };
-        }
-
-        function displayExercise(exercise, container) {
-            const html = `
-                <div class="exercise-result">
-                    <div class="exercise-question">${exercise.pergunta}</div>
-                    <button class="show-answer" onclick="toggleAnswer(this)">Mostrar Resposta</button>
-                    <div class="answer-content">
-                        <h4>${exercise.tipo}</h4>
-                        ${formatExerciseAnswer(exercise.resposta)}
-                    </div>
-                </div>
-            `;
-            container.innerHTML = html;
-        }
-
-        function formatExerciseAnswer(answer) {
-            if (answer.erro) {
-                return `<p style="color: #ff6b6b;">${answer.erro}</p>`;
-            }
-
-            if (answer.notas) {
-                return `
-                    <p><strong>Notas:</strong> ${answer.notas.join(' - ')}</p>
-                    ${answer.intervalos ? `<p><strong>Intervalos:</strong> ${answer.intervalos.join(', ')}</p>` : ''}
-                    ${answer.descricao ? `<p><strong>Descrição:</strong> ${answer.descricao}</p>` : ''}
-                    ${answer.padrao ? `<p><strong>Padrão:</strong> ${answer.padrao}</p>` : ''}
-                `;
-            }
-
-            if (answer.intervalo) {
-                return `
-                    <p><strong>Intervalo:</strong> ${answer.intervalo} (${answer.semitons} semitons)</p>
-                    <p><strong>Descrição:</strong> ${answer.descricao}</p>
-                `;
-            }
-
-            return '<p>Resposta não disponível.</p>';
-        }
-
-        function toggleAnswer(button) {
-            const answerContent = button.nextElementSibling;
-            if (answerContent.style.display === 'none' || !answerContent.style.display) {
-                answerContent.style.display = 'block';
-                button.textContent = 'Ocultar Resposta';
-            } else {
-                answerContent.style.display = 'none';
-                button.textContent = 'Mostrar Resposta';
-            }
-        }
-
-        // Sistema de chat
-        const chatMessages = document.getElementById('chatMessages');
-        const chatInput = document.getElementById('chatInput');
-
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        function sendMessage() {
-            const message = chatInput.value.trim();
-            if (!message) return;
-
-            addMessage(message, 'user');
-            chatInput.value = '';
-
-            // Simula processamento
             setTimeout(() => {
-                const response = processMessage(message);
-                addMessage(response, 'bot');
-            }, 500);
+                notification.classList.remove('show');
+            }, 3000);
         }
 
-        function addMessage(text, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
-            messageDiv.innerHTML = text;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Função para upload de áudio
+        async function handleAudioUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const progressBar = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            const resultsContainer = document.getElementById('audioResults');
+
+            progressBar.style.display = 'block';
+            progressFill.style.width = '0%';
+
+            // Simula progresso de upload
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 90) progress = 90;
+                progressFill.style.width = progress + '%';
+            }, 100);
+
+            try {
+                const formData = new FormData();
+                formData.append('audio', file);
+
+                const response = await fetch('/analyze_audio', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+
+                if (response.ok) {
+                    const result = await response.json();
+                    currentAudioData = result;
+                    displayAudioResults(result);
+                    updateVisualizations(result);
+                    showNotification('Análise de áudio concluída com sucesso!');
+                } else {
+                    throw new Error('Erro na análise do áudio');
+                }
+            } catch (error) {
+                clearInterval(progressInterval);
+                showNotification('Erro ao analisar o áudio: ' + error.message, 'error');
+            } finally {
+                setTimeout(() => {
+                    progressBar.style.display = 'none';
+                }, 1000);
+            }
         }
 
-        function processMessage(message) {
-            const texto = message.toLowerCase();
-
-            // Campo harmônico
-            if (texto.includes('campo harmônico')) {
-                const match = texto.match(/campo harmônico.*?de\s+([a-g]#?)\s*(maior|menor)?/i);
-                if (match) {
-                    const tonica = match[1].toUpperCase();
-                    const modo = match[2] === 'menor' ? 'minor' : 'major';
-                    const resultado = teacher.explainHarmonicField(tonica, modo);
-                    
-                    if (resultado.erro) {
-                        return resultado.erro;
-                    }
-                    
-                    const acordesInfo = resultado.acordes.map(acorde => 
-                        `<strong>${acorde.grau}</strong> - ${acorde.cifra} (${acorde.funcao})`
-                    );
-                    
-                    return `
-                        <strong>Campo harmônico de ${resultado.tonalidade}:</strong><br><br>
-                        ${acordesInfo.join('<br>')}<br><br>
-                        <strong>Progressões comuns:</strong><br>
-                        ${resultado.progressoes_comuns.join('<br>')}
-                    `;
-                }
-                return 'Especifique a tonalidade. Exemplo: "campo harmônico de C maior"';
+        // Função para exibir resultados da análise de áudio
+        function displayAudioResults(data) {
+            const container = document.getElementById('audioResults');
+            
+            let html = '<h3>🎵 Resultados da Análise</h3>';
+            
+            if (data.tonalidade_global) {
+                html += `<div style="margin: 15px 0;">
+                    <strong>🎼 Tonalidade:</strong> ${data.tonalidade_global}
+                    ${data.confianca_tonalidade ? `<span style="color: #666;"> (${(data.confianca_tonalidade * 100).toFixed(1)}% confiança)</span>` : ''}
+                </div>`;
             }
-
-            // Escalas
-            if (texto.includes('escala de')) {
-                const match = texto.match(/escala de\s+([a-g]#?)\s*(maior|menor)?/i);
-                if (match) {
-                    const tonica = match[1].toUpperCase();
-                    const tipo = match[2] === 'menor' ? 'minor' : 'major';
-                    const resultado = teacher.explainScale(tonica, tipo);
-                    
-                    if (resultado.erro) {
-                        return resultado.erro;
-                    }
-                    
-                    return `
-                        <strong>Escala de ${resultado.escala}:</strong><br>
-                        <strong>Notas:</strong> ${resultado.notas.join(' - ')}<br>
-                        <strong>Padrão:</strong> ${resultado.padrao} (T=Tom, S=Semitom)<br>
-                        <strong>Descrição:</strong> ${resultado.descricao}
-                    `;
-                }
+            
+            if (data.tempo) {
+                html += `<div style="margin: 15px 0;">
+                    <strong>⏱️ Tempo:</strong> ${Math.round(data.tempo)} BPM
+                </div>`;
             }
-
-            // Acordes
-            if ((texto.includes('acorde') && (texto.includes('formar') || texto.includes('fazer') || texto.includes('formação'))) || 
-                /^[a-g]#?\s*(maior|menor|m|7)?$/i.test(texto.trim())) {
+            
+            if (data.duracao) {
+                html += `<div style="margin: 15px 0;">
+                    <strong>⏰ Duração:</strong> ${Math.round(data.duracao)} segundos
+                </div>`;
+            }
+            
+            if (data.acordes_globais_detectados && data.acordes_globais_detectados.length > 0) {
+                html += `<div style="margin: 15px 0;">
+                    <strong>🎹 Acordes Detectados:</strong><br>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">`;
                 
-                const match = texto.match(/(?:acorde\s+)?([a-g]#?)\s*(maior|menor|m|7)?/i);
-                if (match) {
-                    const root = match[1].toUpperCase();
-                    const type = match[2] || 'major';
-                    const chordType = type === 'menor' || type === 'm' ? 'minor' : 
-                                     type === '7' ? '7' : 'major';
-                    
-                    const resultado = teacher.explainChord(root, chordType);
-                    
-                    if (resultado.erro) {
-                        return resultado.erro;
-                    }
-                    
-                    return `
-                        <strong>Acorde ${resultado.acorde}:</strong><br>
-                        <strong>Notas:</strong> ${resultado.notas.join(' - ')}<br>
-                        <strong>Intervalos:</strong> ${resultado.intervalos.join(', ')}<br>
-                        <strong>Descrição:</strong> ${resultado.descricao}
-                    `;
-                }
+                data.acordes_globais_detectados.forEach(chord => {
+                    html += `<span style="background: linear-gradient(135deg, #4ecdc4, #44a08d); color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.9rem;">${chord}</span>`;
+                });
+                
+                html += `</div></div>`;
             }
-
-            // Intervalos
-            if (texto.includes('intervalo') && texto.includes('entre')) {
-                const match = texto.match(/intervalo.*?entre\s+([a-g]#?)\s+e\s+([a-g]#?)/i);
-                if (match) {
-                    const resultado = teacher.explainInterval(match[1], match[2]);
-                    
-                    if (resultado.erro) {
-                        return resultado.erro;
-                    }
-                    
-                    return `
-                        <strong>Intervalo entre ${resultado.nota1} e ${resultado.nota2}:</strong><br>
-                        <strong>Intervalo:</strong> ${resultado.intervalo} (${resultado.semitons} semitons)<br>
-                        <strong>Descrição:</strong> ${resultado.descricao}
-                    `;
-                }
+            
+            if (data.estrutura_musical && data.estrutura_musical.sections) {
+                html += `<div style="margin: 15px 0;">
+                    <strong>🏗️ Estrutura Musical:</strong><br>`;
+                data.estrutura_musical.sections.forEach(section => {
+                    html += `<div style="margin: 5px 0; padding: 8px; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
+                        ${section.section} - ${section.start_time.toFixed(1)}s
+                    </div>`;
+                });
+                html += `</div>`;
             }
-
-            // Modos
-            const modos = ['jônio', 'dórico', 'frígio', 'lídio', 'mixolídio', 'eólio', 'lócrio'];
-            for (const modo of modos) {
-                if (texto.includes(modo)) {
-                    const match = texto.match(new RegExp(`(?:modo\\s+)?([a-g]#?)\\s*${modo}`, 'i'));
-                    if (match) {
-                        const resultado = teacher.explainMode(match[1], modo);
-                        
-                        if (resultado.erro) {
-                            return resultado.erro;
-                        }
-                        
-                        return `
-                            <strong>Modo ${resultado.modo}:</strong><br>
-                            <strong>Notas:</strong> ${resultado.notas.join(' - ')}<br>
-                            <strong>Descrição:</strong> ${resultado.descricao}
-                        `;
-                    }
-                }
+            
+            if (data.mudancas_tonalidade && data.mudancas_tonalidade.length > 0) {
+                html += `<div style="margin: 15px 0;">
+                    <strong>🔄 Mudanças de Tonalidade:</strong><br>`;
+                data.mudancas_tonalidade.forEach(change => {
+                    html += `<div style="margin: 5px 0; padding: 8px; background: rgba(255, 107, 107, 0.1); border-radius: 8px;">
+                        ${change.time.toFixed(1)}s: ${change.from_key} → ${change.to_key}
+                    </div>`;
+                });
+                html += `</div>`;
             }
-
-            // Círculo das quintas
-            if (texto.includes('círculo') || texto.includes('ciclo')) {
-                return `
-                    <strong>Círculo das Quintas:</strong><br>
-                    C → G → D → A → E → B → F# → C# → Ab → Eb → Bb → F → C<br><br>
-                    É uma ferramenta fundamental para entender relações entre tonalidades e progressões harmônicas. 
-                    Cada movimento no sentido horário adiciona um sustenido, no anti-horário adiciona um bemol.
-                `;
-            }
-
-            // Exercícios
-            if (texto.includes('exercício') || texto.includes('exercicio')) {
-                return `
-                    Posso gerar exercícios de teoria musical! Use os botões na seção "Exercícios Musicais" para gerar exercícios de:<br>
-                    • <strong>Intervalos</strong> - Identificação de intervalos entre notas<br>
-                    • <strong>Acordes</strong> - Formação e análise de acordes<br>
-                    • <strong>Escalas</strong> - Construção de escalas musicais<br><br>
-                    Isso ajudará você a praticar e fixar o conhecimento! 🎯
-                `;
-            }
-
-            // Resposta padrão
-            return `
-                Ainda não sei responder essa pergunta, mas estou aprendendo! 🎵<br><br>
-                <strong>Você pode perguntar sobre:</strong><br>
-                • Escalas: "escala de D maior"<br>
-                • Acordes: "acorde G7" ou "como formar C menor"<br>
-                • Campo harmônico: "campo harmônico de A menor"<br>
-                • Intervalos: "intervalo entre F e A"<br>
-                • Modos: "modo C mixolídio"<br>
-                • Teoria geral: "círculo das quintas"<br><br>
-                Também posso gerar exercícios para você praticar! 🎯
-            `;
+            
+            container.innerHTML = html;
+            container.style.display = 'block';
         }
 
-        // Remover dragover quando sair da área
-        document.addEventListener('dragleave', (e) => {
-            if (e.target === audioUpload) {
-                audioUpload.classList.remove('dragover');
-            }
-        });
+        // Função para atualizar visualizações
+        function updateVisualizations(data) {
+            updateChordVisualizer(data.acordes_globais_detectados || []);
+            updateSpectrumAnalyzer();
+            updateWaveform();
+        }
 
-        // Inicialização
-        console.log('🎼 Agente Musical de IA carregado com sucesso!');
+        // Função para atualizar visualizador de acordes
+        function updateChordVisualizer(chords) {
+            const container = document.getElementById('chordDiagram');
+            container.innerHTML = '';
+            
+            const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const radius = 100;
+            const centerX = 150;
+            const centerY = 125;
+            
+            notes.forEach((note, index) => {
+                const angle = (index * 30 - 90) * Math.PI / 180;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                
+                const noteElement = document.createElement('div');
+                noteElement.className = 'note-circle';
+                noteElement.textContent = note;
+                noteElement.style.left = (x - 20) + 'px';
+                noteElement.style.top = (y - 20) + 'px';
+                
+                // Verifica se a nota está presente nos acordes detectados
+                const isActive = chords.some(chord => chord.startsWith(note));
+                noteElement.classList.add(isActive ? 'note-active' : 'note-inactive');
+                
+                noteElement.onclick = () => playNote(note);
+                container.appendChild(noteElement);
+            });
+        }
+
+        // Função para simular reprodução de nota
+        function playNote(note) {
+            showNotification(`🎵 Tocando nota: ${note}`);
+        }
+
+        // Função para atualizar analisador de espectro
+        function updateSpectrumAnalyzer() {
+            const container = document.getElementById('spectrumAnalyzer');
+            container.innerHTML = '';
+            
+            // Simula barras de frequência
+            for (let i = 0; i < 64; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'frequency-bar';
+                bar.style.left = (i * 6) + 'px';
+                bar.style.height = Math.random() * 100 + 'px';
+                container.appendChild(bar);
+                
+                // Anima as barras
+                setInterval(() => {
+                    bar.style.height = Math.random() * 100 + 'px';
+                }, 100 + Math.random() * 200);
+            }
+        }
+
+        // Função para atualizar forma de onda
+        function updateWaveform() {
+            const canvas = document.getElementById('waveformCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#4ecdc4';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const points = 200;
+            for (let i = 0; i < points; i++) {
+                const x = (i / points) * canvas.width;
+                const y = canvas.height / 2 + Math.sin(i * 0.1) * 50 * Math.random();
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+        }
+
+        // Função para chat
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Adiciona mensagem do usuário
+            const userMessage = document.createElement('div');
+            userMessage.className = 'message user-message';
+            userMessage.textContent = message;
+            messagesContainer.appendChild(userMessage);
+            
+            input.value = '';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Adiciona indicador de carregamento
+            const loadingMessage = document.createElement('div');
+            loadingMessage.className = 'message ai-message';
+            loadingMessage.innerHTML = '<span class="loading"></span> Pensando...';
+            messagesContainer.appendChild(loadingMessage);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const result = await response.json();
+                
+                // Remove indicador de carregamento
+                messagesContainer.removeChild(loadingMessage);
+                
+                // Adiciona resposta da IA
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'message ai-message';
+                aiMessage.innerHTML = formatAIResponse(result.response);
+                messagesContainer.appendChild(aiMessage);
+                
+            } catch (error) {
+                messagesContainer.removeChild(loadingMessage);
+                
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'message ai-message';
+                errorMessage.textContent = 'Desculpe, ocorreu um erro. Tente novamente.';
+                messagesContainer.appendChild(errorMessage);
+            }
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Função para formatar resposta da IA
+        function formatAIResponse(response) {
+            if (typeof response === 'object') {
+                let html = '';
+                for (const [key, value] of Object.entries(response)) {
+                    if (Array.isArray(value)) {
+                        html += `<strong>${key}:</strong> ${value.join(', ')}<br>`;
+                    } else if (typeof value === 'object') {
+                        html += `<strong>${key}:</strong><br>`;
+                        for (const [subKey, subValue] of Object.entries(value)) {
+                            html += `&nbsp;&nbsp;${subKey}: ${subValue}<br>`;
+                        }
+                    } else {
+                        html += `<strong>${key}:</strong> ${value}<br>`;
+                    }
+                }
+                return html;
+            }
+            return response;
+        }
+
+        // Função para pressionar Enter no chat
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        // Função para explicar conceitos de teoria musical
+        async function explainConcept(concept) {
+            const container = document.getElementById('theoryResults');
+            container.style.display = 'block';
+            container.innerHTML = '<div class="loading"></div> Carregando explicação...';
+            
+            try {
+                const response = await fetch('/explain_concept', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ concept: concept })
+                });
+                
+                const result = await response.json();
+                container.innerHTML = formatConceptExplanation(result);
+                
+            } catch (error) {
+                container.innerHTML = '<p>Erro ao carregar explicação. Tente novamente.</p>';
+            }
+        }
+
+        // Função para formatar explicação de conceitos
+        function formatConceptExplanation(data) {
+            let html = `<h3>📚 ${data.title || 'Explicação'}</h3>`;
+            
+            if (data.description) {
+                html += `<p style="margin: 15px 0; line-height: 1.6;">${data.description}</p>`;
+            }
+            
+            if (data.examples) {
+                html += '<h4>Exemplos:</h4><ul>';
+                data.examples.forEach(example => {
+                    html += `<li>${example}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            return html;
+        }
+
+        // Função para gerar exercícios
+        async function generateExercise(type) {
+            const container = document.getElementById('exerciseResults');
+            container.style.display = 'block';
+            container.innerHTML = '<div class="loading"></div> Gerando exercício...';
+            
+            try {
+                const response = await fetch('/generate_exercise', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ type: type })
+                });
+                
+                const result = await response.json();
+                container.innerHTML = formatExercise(result);
+                
+            } catch (error) {
+                container.innerHTML = '<p>Erro ao gerar exercício. Tente novamente.</p>';
+            }
+        }
+
+        // Função para formatar exercício
+        function formatExercise(exercise) {
+            let html = `<h3>🎯 ${exercise.tipo}</h3>`;
+            html += `<div style="background: rgba(102, 126, 234, 0.1); padding: 20px; border-radius: 15px; margin: 15px 0;">`;
+            html += `<h4>Pergunta:</h4><p style="font-size: 1.1rem; margin: 10px 0;">${exercise.pergunta}</p>`;
+            html += `</div>`;
+            
+            if (exercise.resposta) {
+                html += `<div style="background: rgba(78, 205, 196, 0.1); padding: 20px; border-radius: 15px; margin: 15px 0;">`;
+                html += `<h4>Resposta:</h4>`;
+                html += formatAIResponse(exercise.resposta);
+                html += `</div>`;
+            }
+            
+            html += `<button class="exercise-btn" onclick="generateExercise('${exercise.tipo.toLowerCase()}')">🔄 Novo Exercício</button>`;
+            
+            return html;
+        }
+
+        // Inicialização do círculo das quintas
+        function initCircleOfFifths() {
+            const container = document.getElementById('circleOfFifths');
+            if (!container) return;
+            
+            const svg = d3.select(container)
+                .append('svg')
+                .attr('width', '100%')
+                .attr('height', '400px')
+                .attr('viewBox', '0 0 400 400');
+            
+            const centerX = 200;
+            const centerY = 200;
+            const radius = 150;
+            
+            const keys = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'Ab', 'Eb', 'Bb', 'F'];
+            
+            keys.forEach((key, index) => {
+                const angle = (index * 30 - 90) * Math.PI / 180;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                
+                svg.append('circle')
+                    .attr('cx', x)
+                    .attr('cy', y)
+                    .attr('r', 25)
+                    .attr('fill', '#667eea')
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 2)
+                    .style('cursor', 'pointer')
+                    .on('click', () => showNotification(`🎵 Tonalidade: ${key} maior`))
+                    .on('mouseover', function() {
+                        d3.select(this).attr('fill', '#4ecdc4');
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this).attr('fill', '#667eea');
+                    });
+                
+                svg.append('text')
+                    .attr('x', x)
+                    .attr('y', y + 5)
+                    .attr('text-anchor', 'middle')
+                    .attr('fill', 'white')
+                    .attr('font-weight', 'bold')
+                    .text(key)
+                    .style('pointer-events', 'none');
+            });
+        }
+
+        // Inicialização quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            initCircleOfFifths();
+            updateSpectrumAnalyzer();
+            updateWaveform();
+            
+            // Inicializa visualizador de acordes vazio
+            updateChordVisualizer([]);
+            
+            showNotification('🎵 MusicalAI carregado com sucesso!');
+        });
     </script>
 </body>
 </html>
+
